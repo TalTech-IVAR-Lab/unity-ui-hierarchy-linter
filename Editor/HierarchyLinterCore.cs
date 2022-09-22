@@ -58,6 +58,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             foreach (var linter in Linters)
             foreach (var root in hierarchyRoots)
             {
+                // var 
+                
                 // Apply each linter to all roots
                 linter.Lint(root);
             }

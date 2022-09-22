@@ -18,6 +18,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         private static readonly Dictionary<Type, string> UIComponentLabels = new()
         {
+            { typeof(Canvas), "UI Canvas" },
+            
             { typeof(Image), "Image" },
             { typeof(RawImage), "Raw Image" },
 
@@ -32,6 +34,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             { typeof(Dropdown), "Dropdown" },
             { typeof(TMP_Dropdown), "Dropdown" },
             { typeof(InputField), "Input Field" },
+            { typeof(TMP_InputField), "Input Field" },
 
             { typeof(HorizontalLayoutGroup), "Layout / ↔ Horizontal" },
             { typeof(VerticalLayoutGroup), "Layout / ↕ Vertical" },
@@ -54,7 +57,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             string label = GetLabelForUIGameObject(uiComponent);
             string title = GetTitleForUIGameObject(uiComponent);
 
-            string name = $"{label}{LabelTitleSeparator}{title}";
+            string name = $"{label}{LabelTitleSeparator}";//{title}";
 
             gameObject.name = name;
         }
@@ -69,7 +72,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             var type = uiComponent.GetType();
 
             string label = UIComponentLabels.TryGetValue(type, out string name) ? name : "";
-            return $"[{label}]";
+            return $"{label}";
         }
 
         /// <summary>
@@ -79,26 +82,20 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// Titles are user-defined strings which allow to discern a UI element based on it's content.
         /// For example, for Buttons, the title is the content of Text element belonging to the Button (if any).
         /// </remarks>
-        /// <param name="uiComponent">UI component to get the title for.</param>
+        /// <param name="uiBehaviour">UI component to get the title for.</param>
         /// <returns>Title string.</returns>
-        private static string GetTitleForUIGameObject(UIBehaviour uiComponent)
+        private static string GetTitleForUIGameObject(UIBehaviour uiBehaviour)
         {
-            var gameObject = uiComponent.gameObject;
+            var gameObject = uiBehaviour.gameObject;
 
             // Remember original title in the GameObject name
-            string label = GetLabelForUIGameObject(uiComponent);
+            string label = GetLabelForUIGameObject(uiBehaviour);
             string prefix = $"{label}{LabelTitleSeparator}";
             string originalTitle = gameObject.name.RemovePrefix(prefix);
             if (originalTitle == "") originalTitle = null;
 
             // Set title based on the prevalent UI component type on this GameObject
-            string title = uiComponent switch
-            {
-                Text t => originalTitle ?? t.text.Ellipsize(MaxLabelChars),
-                TMP_Text t => originalTitle ?? t.text.Ellipsize(MaxLabelChars),
-                Toggle t => t.GetComponentInChildren<Text>()?.text ?? originalTitle,
-                _ => originalTitle
-            };
+            string title = originalTitle ?? GetAssociatedTextValue(uiBehaviour);
 
             return title;
         }
@@ -109,9 +106,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <remarks>
         /// This text's value is used as a default title for UI GameObjects.
         /// </remarks>
-        /// <param name="uiBehaviour"></param>
-        /// <returns></returns>
-        private string GetAssociatedTextValue(UIBehaviour uiBehaviour)
+        /// <param name="uiBehaviour"><see cref="UIBehaviour"/> to look for the text value for.</param>
+        /// <returns>Text string or null, if not applicable to the given <see cref="UIBehaviour"/> type.</returns>
+        private static string GetAssociatedTextValue(UIBehaviour uiBehaviour)
         {
             string text = uiBehaviour switch
             {
@@ -124,6 +121,10 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 VerticalLayoutGroup => null,
                 GridLayoutGroup => null,
                 
+                // Images don't have any default text associated with them
+                Image => null,
+                RawImage => null,
+                
                 // Other component types have associated text in child objects
                 _ => GetTextValueFromChildren(uiBehaviour)
             };
@@ -134,7 +135,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <summary>
         /// Returns string value of the first <see cref="TMP_Text"/> or <see cref="Text"/> from children of the given <see cref="UIBehaviour"/>, if available.
         /// </summary>
-        /// <param name="uiBehaviour"><see cref="UIBehaviour"/> to search for the text value in.</param>
+        /// <param name="uiBehaviour">Root <see cref="UIBehaviour"/> to look up the text value from.</param>
         /// <returns>Text string if found, null otherwise.</returns>
         private static string GetTextValueFromChildren(UIBehaviour uiBehaviour)
         {
@@ -147,23 +148,14 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             return null;
         }
 
-        private static string GetTitleFromUIGameObject(GameObject gameObject)
+        public void Lint(Canvas canvas)
         {
-            // string[] split = gameObject.name.Split(new[] { LabelTitleSeparator }, StringSplitOptions.None);
-            // if (split.Length < 2)
-            // {
-            //     // Name contained no separator, special case
-            //     return split[0];
-            // }
-            //
-            // Title
-            // // sting[] splitWithoutTag
-            //
-            // string label = "";
+            var uiBehaviours = canvas.GetComponentsInChildren<UIBehaviour>();
 
-            return "";
+            foreach (var uiBehaviour in uiBehaviours)
+            {
+                EnforceGameObjectNaming(uiBehaviour);
+            }
         }
-
-        public void Lint(Canvas canvas) { throw new NotImplementedException(); }
     }
 }
