@@ -1,0 +1,56 @@
+# Global plugin options (will be passed to all plugins)
+preset: "conventionalcommits"
+
+# Plugins
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/changelog"
+  - "@semantic-release/release-notes-generator"
+  - # this has to be done to replace npmjs with our custom registry when npm plugin executes
+    - "@semantic-release/exec"
+    - shell: "bash"
+      verifyConditionsCmd: "npm config set registry $CUSTOM_NPM_REGISTRY"
+  - "@semantic-release/npm"
+  - "@semantic-release/git"
+  - "@semantic-release/gitlab"
+branches:
+  - "main"
+  - "+([0-9])?(.{+([0-9]),x}).x"
+  - name: "preview"
+    prerelease: "preview"
+
+# Responsible for generating the content of the release notes
+generateNotes:
+  - path: '@semantic-release/release-notes-generator'
+    writerOpts:
+      groupBy: 'type'
+      commitGroupsSort: 'title'
+      commitsSort: 'header'
+    linkCompare: true
+    linkReferences: true
+    presetConfig:
+      types:  # looks like it only works with 'conventionalcommits' preset
+        - type: 'build'
+          section: '🦊 CI/CD'
+        - type: 'chore'
+          section: 'Other'
+        - type: 'ci'
+          section: '🦊 CI/CD'
+        - type: 'docs'
+          section: '📔 Docs'
+        - type: 'example'
+          section: '📝 Examples'
+        - type: 'feat'
+          section: '🚀 Features'
+        - type: 'fix'
+          section: '🛠 Fixes'
+        - type: 'perf'
+          section: '⏩ Performance'
+        - type: 'refactor'
+          section: '✂ Refactor'
+        - type: 'revert'
+          section: '🙅‍♂️ Reverts'
+        - type: 'style'
+          section: '💈 Style'
+        - type: 'test'
+          section: '🧪 Tests'
