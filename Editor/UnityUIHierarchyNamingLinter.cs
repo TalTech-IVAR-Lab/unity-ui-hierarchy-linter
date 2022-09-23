@@ -1,8 +1,7 @@
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.Specialized;
     using TMPro;
     using UnityEngine;
     using UnityEngine.EventSystems;
@@ -18,58 +17,52 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// </summary>
     internal class UnityUIHierarchyNamingLinter : IUnityUILinter
     {
-        private const int MaxTitleChars = 10;
+        private const int MaxTitleChars = 20;
+        private const string EmptyTextString = "<empty>";
 
-        private static readonly Dictionary<Type, string> UIComponentLabels = new()
+        /// <summary>
+        /// Ordered dictionary that matches Unity UI component types with their respective pretty names.
+        /// </summary>
+        /// <remarks>
+        /// The order of this dict serves a purpose: it defines the naming priority of UI components when
+        /// selecting the main component on the <see cref="RectTransform"/> for producing default labels and
+        /// titles for UI GameObjects.
+        /// </remarks>
+        /// <seealso cref="GetHighestNamingPriorityUIComponent"/>
+        private static readonly OrderedDictionary UIComponentsNames = new()
         {
-            { typeof(RectTransform), "Group" },
-            
             { typeof(Canvas), "UI Canvas" },
             { typeof(CanvasGroup), "UI Canvas Group" },
-            
-            { typeof(Mask), "Mask" },
-            { typeof(RectMask2D), "Rect Mask" },
-            
-            { typeof(Image), "Image" },
-            { typeof(RawImage), "Raw Image" },
-
-            { typeof(Text), "Text" },
-            { typeof(TextMeshProUGUI), "Text" },
-
-            { typeof(Toggle), "Toggle" },
-            { typeof(Slider), "Slider" },
-            { typeof(Scrollbar), "Scrollbar" },
-            { typeof(ScrollView), "Scroll View" },
-            { typeof(Button), "Button" },
-            { typeof(Dropdown), "Dropdown" },
-            { typeof(TMP_Dropdown), "Dropdown" },
-            { typeof(InputField), "Input Field" },
-            { typeof(TMP_InputField), "Input Field" },
 
             { typeof(HorizontalLayoutGroup), "Layout / ↔ Horizontal" },
             { typeof(VerticalLayoutGroup), "Layout / ↕ Vertical" },
             { typeof(GridLayoutGroup), "Layout / ▦ Grid" },
+
+            { typeof(ScrollView), "Scroll View" },
+            { typeof(ScrollRect), "Scroll Rect" },
+            { typeof(Scrollbar), "Scrollbar" },
+            { typeof(Slider), "Slider" },
+            { typeof(Toggle), "Toggle" },
+            { typeof(ToggleGroup), "Toggle Group" },
+            { typeof(Dropdown), "Dropdown" },
+            { typeof(TMP_Dropdown), "Dropdown" },
+            { typeof(InputField), "Input Field" },
+            { typeof(TMP_InputField), "Input Field" },
+            { typeof(Button), "Button" },
+
+            { typeof(Mask), "Mask" },
+            { typeof(RectMask2D), "Rect Mask" },
+
+            { typeof(Text), "Text" },
+            { typeof(TextMeshProUGUI), "Text" },
+
+            { typeof(Image), "Image" },
+            { typeof(RawImage), "Raw Image" },
+
+            { typeof(RectTransform), "Group" },
         };
 
-        private static List<Type> UIComponentsTypeHierarchy = new()
-        {
-            typeof(Canvas),
-            typeof(CanvasGroup),
-            
-            typeof(HorizontalLayoutGroup),
-            typeof(VerticalLayoutGroup),
-            typeof(GridLayoutGroup),
-            
-            typeof(Mask),
-            typeof(RectMask2D),
-            
-            typeof(TextMeshProUGUI),
-            typeof(Text),
-            
-            typeof(RectTransform),
-        };
-
-        private const string LabelTitleSeparator = " - ";
+        private const string LabelTitleSeparator = " ⁃ ";
 
         private static void EnforceNaming(RectTransform rect)
         {
@@ -78,26 +71,33 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             string label = GetLabelForRect(rect);
             string title = GetTitleForRect(rect);
 
-            string name = $"{label}{LabelTitleSeparator}{title}";
+            string name = $"{label}";
+
+            if (!string.IsNullOrEmpty(title)) name += $"{LabelTitleSeparator}{title}";
 
             gameObject.name = name;
         }
 
-        private static Component GetMainUIComponent(RectTransform rect)
+        /// <summary>
+        /// Retrieves the UI component with the highest naming priority attached to the given <see cref="RectTransform"/>.
+        /// </summary>
+        /// <remarks>
+        /// In order to give meaningful names to the GameObjects in the UI hierarchy, we have to look for the UI components 
+        /// attached to them. However, often GameObjects will have multiple UI components attached to them. In this case, we
+        /// have to pick one that has the highest priority in the given context. We do this by following the order of priority
+        /// defined in <see cref="UIComponentsNames"/>.
+        /// </remarks>
+        /// <param name="rect"><see cref="RectTransform"/> to look for the UI component on.</param>
+        private static Component GetHighestNamingPriorityUIComponent(RectTransform rect)
         {
-            var canvas = rect.GetComponent<Canvas>();
-            if (canvas != null)
+            var allComponents = rect.GetComponents<Component>();
+            
+            // Find the first matching UI component on the rect following the pre-defined order
+            foreach (Type componentType in UIComponentsNames.Keys)
+            foreach (var component in allComponents)
             {
-                return canvas;
-            }
-
-            var uiBehaviours = rect.GetComponents<UIBehaviour>();
-            if (uiBehaviours.Length > 0)
-            {
-                // Sort by priority and select the top one
-                // TODO: define priority
-                // TODO: sort
-                return uiBehaviours[0];
+                // The first match will be the highest-priority component on this rect
+                if (componentType == component.GetType()) return component;
             }
 
             return rect;
@@ -110,21 +110,20 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <returns>Label string.</returns>
         private static string GetLabelForRect(RectTransform rect)
         {
-            var uiComponent = GetMainUIComponent(rect);
-            if (uiComponent == null)
-            {
-                // Rect doesn't have any UI components attached to it - it's a simple container
-                return "Container";
-            }
-            
+            var uiComponent = GetHighestNamingPriorityUIComponent(rect);
             var type = uiComponent.GetType();
 
-            UIComponentLabels.TryGetValue(type, out string name);
-            return $"{name}";
+            string componentName = null;
+            if (UIComponentsNames.Contains(type))
+            {
+                componentName = (string)UIComponentsNames[type];
+            }
+
+            return $"{componentName}";
         }
 
         /// <summary>
-        /// Gets a title string for the given UI component.
+        /// Gets a title string for the given <see cref="RectTransform"/>.
         /// </summary>
         /// <remarks>
         /// Titles are user-defined strings which allow to discern a UI element based on it's content.
@@ -145,51 +144,50 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             bool strictTitle = true;
             if (title == "" || strictTitle)
             {
-                var mainUIComponent = GetMainUIComponent(rect);
-                if (mainUIComponent != null)
-                {
-                    title = GetAssociatedTextValue(mainUIComponent)?.Ellipsize(MaxTitleChars);
-                }
+                var mainUIComponent = GetHighestNamingPriorityUIComponent(rect);
+                if (mainUIComponent != null) { title = GetDefaultTitle(mainUIComponent)?.Ellipsize(MaxTitleChars); }
             }
-            
+
             return title;
         }
 
         /// <summary>
-        /// Tries to retrieve the text associated with the given UI element.
+        /// Tries to retrieve a default title for the given UI element.
         /// </summary>
         /// <remarks>
-        /// This text's value is used as a default title for UI GameObjects.
+        /// For example, a default title for a Button will be this Button's nested Text content.
         /// </remarks>
         /// <param name="uiComponent">UI <see cref="Component"/> to look for the text value for.</param>
         /// <returns>Text string or null, if not applicable to the given <see cref="UIBehaviour"/> type.</returns>
-        private static string GetAssociatedTextValue(Component uiComponent)
+        private static string GetDefaultTitle(Component uiComponent)
         {
+            // Helper function to extract text string value from both TMP and legacy Text components
+            string ExtractText(dynamic t) => string.IsNullOrEmpty(t.text) ? EmptyTextString : t.text;
+            
             string text = uiComponent switch
             {
                 // Text speaks for itself
-                Text t => t.text,
-                TMP_Text t => t.text,
-                
-                // Images are be named after their attached texture or sprite
+                Text t => ExtractText(t),
+                TextMeshProUGUI t => ExtractText(t),
+
+                // Images are named after their attached texture or sprite
                 Image i => (i.sprite != null) ? i.sprite.name : null,
                 RawImage i => (i.texture != null) ? i.texture.name : null,
+                
+                // Component types which can have associated text in their child objects
+                Toggle => GetTextValueFromChildren(uiComponent),
+                ToggleGroup => GetTextValueFromChildren(uiComponent),
+                InputField => GetTextValueFromChildren(uiComponent),
+                TMP_InputField => GetTextValueFromChildren(uiComponent),
+                Button => GetTextValueFromChildren(uiComponent),
 
-                // Layout groups don't have any default text associated with them
-                HorizontalLayoutGroup => null,
-                VerticalLayoutGroup => null,
-                GridLayoutGroup => null,
-                
-                // Canvases don't have any default text associated with them
-                Canvas => null,
-                
-                // Other component types have associated text in child objects
-                _ => GetTextValueFromChildren(uiComponent)
+                // Other component types don't have any default text associated with them
+                _ => null,
             };
 
             return text;
         }
-        
+
         /// <summary>
         /// Returns string value of the first <see cref="TMP_Text"/> or <see cref="Text"/> from children of the given <see cref="UIBehaviour"/>, if available.
         /// </summary>
@@ -197,7 +195,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <returns>Text string if found, null otherwise.</returns>
         private static string GetTextValueFromChildren(Component uiComponent)
         {
-            var text = uiComponent.GetComponentInChildren<TMP_Text>();
+            var text = uiComponent.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null) return text.text;
 
             var legacyText = uiComponent.GetComponentInChildren<Text>();
@@ -205,10 +203,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             return null;
         }
-        
-        public void Lint(RectTransform rect)
-        {
-            EnforceNaming(rect);
-        }
+
+        public void Lint(RectTransform rect) { EnforceNaming(rect); }
     }
 }
