@@ -12,8 +12,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         private static readonly List<IUnityUILinter> Linters = new()
         {
             new UnityUIHierarchyNamingLinter()
-            // TODO: Ensure logic separation
             // TODO: Clean RectTransforms
+            // TODO: Ensure logic separation
             // TODO: Enforce exclusivity of LayoutGroups
         };
 
@@ -54,7 +54,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             }
             
             // var hierarchyRoots = FindUIHierarchyRoots();
-            var rects = Object.FindObjectsOfType<RectTransform>();
+            var rects = Object.FindObjectsOfType<RectTransform>(true);
 
             foreach (var linter in Linters)
             foreach (var rect in rects)
