@@ -9,11 +9,11 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     {
         #region Data
 
-        private static readonly List<ICanvasLinter> Linters = new()
+        private static readonly List<IUnityUILinter> Linters = new()
         {
-            new UIHierarchyNamingLinter()
+            new UnityUIHierarchyNamingLinter(),
+            new RectTransformValuesLinter()
             // TODO: Ensure logic separation
-            // TODO: Clean RectTransforms
             // TODO: Enforce exclusivity of LayoutGroups
         };
 
@@ -52,14 +52,15 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 // Only lint in Edit mode
                 return;
             }
-            
-            var hierarchyRoots = FindUIHierarchyRoots();
+
+            // var hierarchyRoots = FindUIHierarchyRoots();
+            var rects = Object.FindObjectsOfType<RectTransform>(true);
 
             foreach (var linter in Linters)
-            foreach (var root in hierarchyRoots)
+            foreach (var rect in rects)
             {
-                // Apply each linter to all roots
-                linter.Lint(root);
+                // Apply each linter to all UI rects
+                linter.Lint(rect);
             }
         }
 
