@@ -12,9 +12,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         private static readonly List<IUnityUILinter> Linters = new()
         {
             new UnityUIHierarchyNamingLinter(),
-            new RectTransformValuesLinter()
+            new RectTransformValuesLinter(),
+            new LayoutGroupExclusivityLinter(),
             // TODO: Ensure logic separation
-            // TODO: Enforce exclusivity of LayoutGroups
         };
 
         #endregion
