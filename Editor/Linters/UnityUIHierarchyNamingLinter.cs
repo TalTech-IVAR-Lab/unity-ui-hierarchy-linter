@@ -20,7 +20,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     {
         private const int MaxContentLabelChars = 20;
         private const string EmptyTextString = "<empty>";
-        private const string LabelTitleSeparator = " ⁃ ";
+        private const string LabelSeparator = " ⁃ ";
         private const char TextQuoteOpeningChar = '“';
         private const char TextQuoteClosingChar = '”';
 
@@ -74,7 +74,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             string name = label;
 
             string title = GetContentLabelForRect(rect);
-            if (!string.IsNullOrEmpty(title)) name += $"{LabelTitleSeparator}{title}";
+            if (!string.IsNullOrEmpty(title)) name += $"{LabelSeparator}{title}";
 
             gameObject.name = name;
         }
@@ -164,7 +164,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             // For all the rest of object types, use custom title, if any
             string label = GetTypeLabelForRect(rect);
-            string prefix = $"{label}{LabelTitleSeparator}";
+            string prefix = $"{label}{LabelSeparator}";
             string currentTitle = gameObject.name.RemoveUpToFullPrefix(prefix);
             if (string.IsNullOrWhiteSpace(currentTitle)) return null;
             return currentTitle;
