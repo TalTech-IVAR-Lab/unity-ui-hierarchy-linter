@@ -39,13 +39,16 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                     )
             ).ToList();
 
-            if (illegalComponents.Count > 0)
-            {
-                Debug.LogWarning($"Object '{rect}' contains {illegalComponents.Count} illegal objects:\n" +
-                                 $"{illegalComponents}", rect);
-            }
+            // if (illegalComponents.Count > 0)
+            // {
+            //     Debug.LogWarning($"Object '{rect}' contains {illegalComponents.Count} illegal objects:\n" +
+            //                      $"{illegalComponents}", rect);
+            // }
 
             var layoutGroupExclusivityTag = rect.GetComponent<LayoutGroupExclusivityTag>();
+            
+            // TODO: if layout group was just added, 
+            
             var layoutGroupJustAdded = (layoutGroupExclusivityTag == null);
         }
     }
