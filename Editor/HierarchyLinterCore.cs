@@ -11,7 +11,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         private static readonly List<IUnityUILinter> Linters = new()
         {
-            new UnityUIHierarchyNamingLinter(),
+            new RectTransformNamingLinter(),
             new RectTransformValuesLinter(),
             new LayoutGroupExclusivityLinter(),
         };

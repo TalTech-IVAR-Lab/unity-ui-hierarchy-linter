@@ -16,7 +16,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// <summary>
     /// Applies pre-defined naming rules to GameObject belonging to the linted RectTransform.
     /// </summary>
-    internal class UnityUIHierarchyNamingLinter : IUnityUILinter
+    internal class RectTransformNamingLinter : IUnityUILinter
     {
         private const int MaxContentLabelChars = 20;
         private const string EmptyTextString = "<empty>";
@@ -38,9 +38,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             { typeof(Canvas), "UI Canvas" },
             { typeof(CanvasGroup), "UI Canvas Group" },
 
-            { typeof(HorizontalLayoutGroup), "Layout (↔ Horizontal)" },
-            { typeof(VerticalLayoutGroup), "Layout (↕ Vertical)" },
-            { typeof(GridLayoutGroup), "Layout (▦ Grid)" },
+            { typeof(HorizontalLayoutGroup), "Layout ↔" },
+            { typeof(VerticalLayoutGroup), "Layout ↕" },
+            { typeof(GridLayoutGroup), "Layout ⋮⋮⋮" },
 
             { typeof(ScrollView), "Scroll View" },
             { typeof(ScrollRect), "Scroll Rect" },
