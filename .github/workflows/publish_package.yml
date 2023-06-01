@@ -1,0 +1,32 @@
+# Versions and publishes the package to TalTech IVAR Lab's NPM registry
+name: Publish Package to Verdaccio
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/npm
+            @semantic-release/git
+            @semantic-release/gitlab
+            @semantic-release/changelog
+            @commitlint/cli
+            @commitlint/config-conventional
+        env:
+          GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_REGISTRY: ${{ secrets.NPM_REGISTRY }}

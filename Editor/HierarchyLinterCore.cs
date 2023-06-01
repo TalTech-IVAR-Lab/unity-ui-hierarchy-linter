@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
-    using System.Collections.Generic;
-    using UnityEditor;
-    using UnityEngine;
-
     [InitializeOnLoad]
     public static class HierarchyLinterCore
     {
@@ -11,10 +11,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         private static readonly List<IUnityUILinter> Linters = new()
         {
-            new UnityUIHierarchyNamingLinter()
-            // TODO: Clean RectTransforms
-            // TODO: Ensure logic separation
-            // TODO: Enforce exclusivity of LayoutGroups
+            new UnityUIHierarchyNamingLinter(),
+            new RectTransformValuesLinter(),
+            new LayoutGroupExclusivityLinter(),
         };
 
         #endregion
@@ -24,13 +23,11 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         static HierarchyLinterCore()
         {
             EditorApplication.hierarchyChanged += OnHierarchyChanged;
-            Debug.Log("Linter loaded.");
         }
 
         private static void OnHierarchyChanged()
         {
-            // Debug.Log("hierarchy changed in Edit Mode");
-            Lint();
+            RunLinters();
         }
 
         #endregion
@@ -39,20 +36,20 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         private static Canvas[] FindUIHierarchyRoots()
         {
-            // Canvas is the root component of every Unity UI hierarchy.
+            // Canvas is the root component of every Unity UI hierarchy
             var canvases = Object.FindObjectsOfType<Canvas>();
 
             return canvases;
         }
 
-        private static void Lint()
+        private static void RunLinters()
         {
-            if (Application.isPlaying)
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPaused) return;
             {
                 // Only lint in Edit mode
                 return;
             }
-            
+
             // var hierarchyRoots = FindUIHierarchyRoots();
             var rects = Object.FindObjectsOfType<RectTransform>(true);
 
