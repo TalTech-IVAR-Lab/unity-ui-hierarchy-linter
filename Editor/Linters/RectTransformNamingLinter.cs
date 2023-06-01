@@ -35,8 +35,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <seealso cref="GetHighestNamingPriorityUIComponent"/>
         private static readonly OrderedDictionary UIComponentsNames = new()
         {
-            { typeof(Canvas), "UI Canvas" },
-            { typeof(CanvasGroup), "UI Canvas Group" },
+            { typeof(Canvas), "Canvas" },
+            { typeof(CanvasGroup), "Canvas Group" },
 
             { typeof(HorizontalLayoutGroup), "Layout ↔" },
             { typeof(VerticalLayoutGroup), "Layout ↕" },

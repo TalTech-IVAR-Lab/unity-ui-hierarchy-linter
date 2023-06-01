@@ -14,6 +14,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             new RectTransformNamingLinter(),
             new RectTransformValuesLinter(),
             new LayoutGroupExclusivityLinter(),
+            new UIComponentOrderLinter(),
         };
 
         #endregion
