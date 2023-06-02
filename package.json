@@ -1,6 +1,6 @@
 {
   "name": "ee.taltech.ivar.unity-ui-hierarchy-linter",
-  "version": "0.0.2-preview.1",
+  "version": "0.1.0-preview.1",
   "displayName": "Unity UI Hierarchy Linter",
   "description": "Package to help enforce a consistent and easy-to-navigate layout in Unity UI hierarchy.",
   "unity": "2020.3",
