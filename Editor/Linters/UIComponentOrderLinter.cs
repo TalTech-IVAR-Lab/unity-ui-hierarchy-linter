@@ -25,15 +25,18 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         {
             typeof(RectTransform),
 
-            // Canvas components right after RectTransform
-            typeof(Canvas),
-            typeof(CanvasGroup),
-            typeof(CanvasRenderer),
-            typeof(CanvasScaler),
+            // 
+            typeof(UILinterObjectNameLabel),
 
             // Layout components stay on top of the rest of UI components
             typeof(LayoutElement),
             typeof(LayoutGroup),
+
+            // Canvas components right after layouts
+            typeof(Canvas),
+            typeof(CanvasGroup),
+            typeof(CanvasRenderer),
+            typeof(CanvasScaler),
 
             // Other UI components stay at the bottom
             typeof(Graphic),
@@ -45,6 +48,15 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         #region Linter callbacks
 
         public void Lint(RectTransform rect)
+        {
+            EnforceOrder(rect);
+        }
+
+        #endregion
+
+        #region Logic
+
+        private static void EnforceOrder(RectTransform rect)
         {
             var components = rect.GetComponents<Component>().ToList();
             var orderedComponents = components.OrderBy(GetComponentOrderValue).ToList();
@@ -73,11 +85,12 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 Debug.Log($"UIComponentOrderLinter: Reordered components on {rect.name}.", rect.gameObject);
         }
 
-        #endregion
 
-        #region Logic
-
-        private int GetComponentOrderValue(Component component)
+        /// <summary>
+        /// Returns the order value of the given component based on the <see cref="ComponentTypesOrder"/> list.
+        /// </summary>
+        /// <param name="component">Component to get the order value of.</param>
+        private static int GetComponentOrderValue(Component component)
         {
             var componentType = component.GetType();
 

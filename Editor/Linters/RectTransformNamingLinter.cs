@@ -38,8 +38,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <seealso cref="GetHighestNamingPriorityUIComponent"/>
         private static readonly OrderedDictionary UIComponentsNames = new()
         {
-            { typeof(Canvas), "Canvas" },
-            { typeof(CanvasGroup), "Canvas Group" },
+            { typeof(Canvas), "UI Canvas" },
+            { typeof(CanvasGroup), "UI Canvas Group" },
 
             { typeof(HorizontalLayoutGroup), "Layout ↔" },
             { typeof(VerticalLayoutGroup), "Layout ↕" },
@@ -86,12 +86,15 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         {
             var gameObject = rect.gameObject;
 
-            string label = GetTypeLabelForRect(rect);
-            string name = label;
+            string typeString = GetTypeStringForRect(rect);
+            string name = typeString;
 
-            string title = GetContentLabelForRect(rect);
-            if (!string.IsNullOrEmpty(title)) name += $"{LabelSeparator}{title}";
+            string contentString = GetContentStringForRect(rect);
+            if (!string.IsNullOrEmpty(contentString)) name += $"{LabelSeparator}{contentString}";
 
+            string customLabelString = GetCustomLabelStringForRect(rect);
+            if (!string.IsNullOrEmpty(customLabelString)) name += $"{LabelSeparator}{customLabelString}";
+            
             gameObject.name = name;
         }
 
@@ -128,7 +131,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// </remarks>
         /// <param name="rect"><see cref="RectTransform"/> to get the label for.</param>
         /// <returns>Label string.</returns>
-        private static string GetTypeLabelForRect(RectTransform rect)
+        private static string GetTypeStringForRect(RectTransform rect)
         {
             var uiComponent = GetHighestNamingPriorityUIComponent(rect);
             var type = uiComponent.GetType();
@@ -151,7 +154,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// </remarks>
         /// <param name="rect"><see cref="RectTransform"/> to get the title for.</param>
         /// <returns>Title string.</returns>
-        private static string GetContentLabelForRect(RectTransform rect)
+        private static string GetContentStringForRect(RectTransform rect)
         {
             var gameObject = rect.gameObject;
             var uiComponent = GetHighestNamingPriorityUIComponent(rect);
@@ -178,57 +181,15 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 };
             }
 
-            // For all the rest of object types, use custom title, if any
-            string label = GetTypeLabelForRect(rect);
-            string prefix = $"{label}{LabelSeparator}";
-            string currentTitle = gameObject.name.RemoveUpToFullPrefix(prefix);
-            if (string.IsNullOrWhiteSpace(currentTitle)) return null;
-            return currentTitle;
+            return null;
         }
 
-        /// <summary>
-        /// Tries to retrieve a default title for the given UI element.
-        /// </summary>
-        /// <remarks>
-        /// For example, a default title for a Button will be this Button's nested Text content.
-        /// </remarks>
-        /// <param name="uiComponent">UI <see cref="Component"/> to look for the text value for.</param>
-        /// <returns>Text string or null, if not applicable to the given <see cref="UIBehaviour"/> type.</returns>
-        private static string GetDefaultTitle(Component uiComponent)
+        private static string GetCustomLabelStringForRect(RectTransform rect)
         {
-            // Helper function to extract text string value from both TMP and legacy Text components
-            string ExtractText(dynamic t) => string.IsNullOrEmpty(t.text) ? EmptyTextString : t.text;
-
-            // Helper function to get prettifies text title
-            string GetPrettyTitle(Component c)
-            {
-                string title = GetTextValueFromChildren(c);
-                if (string.IsNullOrEmpty(title)) return null;
-                 
-                title = title.Split("\n")[0];
-                return QuoteText(title.EllipsizeMultiline(MaxContentLabelChars));
-            }
-
-            string text = uiComponent switch
-            {
-                // Images are named after their attached texture or sprite
-                Image i => (i.sprite != null) ? i.sprite.name : null,
-                RawImage i => (i.texture != null) ? i.texture.name : null,
-
-                // Component types which can have associated text on them or in their child objects
-                Text => GetPrettyTitle(uiComponent),
-                TextMeshProUGUI => GetPrettyTitle(uiComponent),
-                Toggle => GetPrettyTitle(uiComponent),
-                ToggleGroup => GetPrettyTitle(uiComponent),
-                InputField => GetPrettyTitle(uiComponent),
-                TMP_InputField => GetPrettyTitle(uiComponent),
-                Button => GetPrettyTitle(uiComponent),
-
-                // Other component types don't have any default text associated with them
-                _ => null,
-            };
-
-            return text;
+            var customLabel = rect.GetComponent<UILinterObjectNameLabel>();
+            if (customLabel == null) return null;
+            
+            return customLabel.nameLabel;
         }
 
         #region Images

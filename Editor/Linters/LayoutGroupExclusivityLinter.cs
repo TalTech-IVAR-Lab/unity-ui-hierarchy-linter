@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
     /// <summary>
-    /// Ensures that RectTransforms with LayoutGroups don't have any other Ui components attached to them. 
+    /// Ensures that RectTransforms with LayoutGroups don't have any other UI components attached to them. 
     /// </summary>
     public class LayoutGroupExclusivityLinter : IUnityUILinter
     {

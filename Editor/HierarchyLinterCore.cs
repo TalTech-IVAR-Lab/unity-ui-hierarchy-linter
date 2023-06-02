@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
@@ -40,14 +41,11 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             // only lint in Edit mode
             if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPaused) return;
 
-            var rects = Object.FindObjectsOfType<RectTransform>(true);
+            var rects = StageUtility.GetCurrentStageHandle().FindComponentsOfType<RectTransform>();
 
             foreach (var linter in Linters)
             foreach (var rect in rects)
             {
-                // don't lint in prefabs
-                if (PrefabUtility.IsPartOfRegularPrefab(rect)) continue;
-
                 // apply each linter to all UI rects
                 linter.Lint(rect);
             }
