@@ -1,0 +1,19 @@
+name: Semantic release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  publish:
+    name: Publish NPM package
+    uses: TalTech-IVAR-Lab/.github/.github/workflows/semantic-release.yml@main
+    secrets: inherit
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write

@@ -1,0 +1,21 @@
+# Fallback manual workflow for publishing the NPM package to the registry if semantic release publishing fails.
+name: Publish NPM package
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        type: choice
+        description: Choose tag based on desired release type
+        options:
+          - develop
+          - latest
+
+jobs:
+  publish:
+    name: Publish NPM package
+    uses: TalTech-IVAR-Lab/.github/.github/workflows/publish-npm-package.yml@main
+    secrets: inherit
+    with:
+      tag: ${{ github.event.inputs.tag }}
