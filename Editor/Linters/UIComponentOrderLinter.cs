@@ -13,6 +13,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// </summary>
     public class UIComponentOrderLinter : IUnityUILinter
     {
+        #region Data
+
         /// <summary>
         /// List that defines the order in which the corresponding UI component types will be ordered on GameObjects.
         /// </summary>
@@ -32,11 +34,15 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             // Layout components stay on top of the rest of UI components
             typeof(LayoutElement),
             typeof(LayoutGroup),
-        
+
             // Other UI components stay at the bottom
             typeof(Graphic),
             typeof(UIBehaviour),
         };
+
+        #endregion
+
+        #region Linter callbacks
 
         public void Lint(RectTransform rect)
         {
@@ -67,6 +73,10 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 Debug.Log($"UIComponentOrderLinter: Reordered components on {rect.name}.", rect.gameObject);
         }
 
+        #endregion
+
+        #region Logic
+
         private int GetComponentOrderValue(Component component)
         {
             var componentType = component.GetType();
@@ -89,5 +99,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         {
             return (thisType == otherType) || thisType.IsSubclassOf(otherType);
         }
+
+        #endregion
     }
 }

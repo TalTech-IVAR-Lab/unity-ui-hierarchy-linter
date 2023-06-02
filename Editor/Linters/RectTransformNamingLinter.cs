@@ -18,11 +18,14 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// </summary>
     internal class RectTransformNamingLinter : IUnityUILinter
     {
+        #region Data
+        
         private const int MaxContentLabelChars = 20;
-        private const string EmptyTextString = "<empty>";
         private const string LabelSeparator = " ⁃ ";
         private const char TextQuoteOpeningChar = '“';
         private const char TextQuoteClosingChar = '”';
+        private const string EmptyTextString = "<no text>";
+        private const string EmptyImageString = "<no texture>";
 
         /// <summary>
         /// Ordered dictionary that matches Unity UI component types with their respective pretty names.
@@ -65,6 +68,19 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             { typeof(RectTransform), "Group" },
         };
+        
+        #endregion
+
+        #region Linter callbacks
+
+        public void Lint(RectTransform rect)
+        {
+            EnforceNaming(rect);
+        }
+
+        #endregion
+
+        #region Logic
 
         private static void EnforceNaming(RectTransform rect)
         {
@@ -144,7 +160,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             if (IsTextComponent(uiComponent))
             {
                 string text = GetTextValueFromChildren(rect);
-                if (string.IsNullOrEmpty(text)) return null;
+                if (string.IsNullOrEmpty(text)) return EmptyTextString;
 
                 text = text.Split("\n")[0];
                 return QuoteText(text.EllipsizeMultiline(MaxContentLabelChars));
@@ -156,8 +172,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 return uiComponent switch
                 {
                     // Images are named after their attached texture or sprite
-                    Image i => (i.sprite != null) ? i.sprite.name : null,
-                    RawImage i => (i.texture != null) ? i.texture.name : null,
+                    Image i => (i.sprite != null) ? i.sprite.name : EmptyImageString,
+                    RawImage i => (i.texture != null) ? i.texture.name : EmptyImageString,
                     _ => null,
                 };
             }
@@ -168,39 +184,6 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             string currentTitle = gameObject.name.RemoveUpToFullPrefix(prefix);
             if (string.IsNullOrWhiteSpace(currentTitle)) return null;
             return currentTitle;
-        }
-
-        /// <summary>
-        /// Set of UI component types which labels should be formatted based on attached images.
-        /// </summary>
-        private static HashSet<Type> ImageUIComponents = new()
-        {
-            typeof(Image),
-            typeof(RawImage),
-        };
-        
-        /// <summary>
-        /// Set of UI component types which labels should be formatted based on attached text.
-        /// </summary>
-        private static HashSet<Type> TextUIComponents = new()
-        {
-            typeof(Text),
-            typeof(TextMeshProUGUI),
-            typeof(Toggle),
-            typeof(ToggleGroup),
-            typeof(InputField),
-            typeof(TMP_InputField),
-            typeof(Button),
-        };
-
-        private static bool IsTextComponent(Component uiComponent)
-        {
-            return TextUIComponents.Contains(uiComponent.GetType());
-        }
-
-        private static bool IsImageComponent(Component uiComponent)
-        {
-            return ImageUIComponents.Contains(uiComponent.GetType());
         }
 
         /// <summary>
@@ -248,6 +231,45 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             return text;
         }
 
+        #region Images
+
+        /// <summary>
+        /// Set of UI component types which labels should be formatted based on attached images.
+        /// </summary>
+        private static HashSet<Type> ImageUIComponents = new()
+        {
+            typeof(Image),
+            typeof(RawImage),
+        };
+
+        private static bool IsImageComponent(Component uiComponent)
+        {
+            return ImageUIComponents.Contains(uiComponent.GetType());
+        }
+
+        #endregion
+
+        #region Text
+
+        /// <summary>
+        /// Set of UI component types which labels should be formatted based on attached text.
+        /// </summary>
+        private static HashSet<Type> TextUIComponents = new()
+        {
+            typeof(Text),
+            typeof(TextMeshProUGUI),
+            typeof(Toggle),
+            typeof(ToggleGroup),
+            typeof(InputField),
+            typeof(TMP_InputField),
+            typeof(Button),
+        };
+
+        private static bool IsTextComponent(Component uiComponent)
+        {
+            return TextUIComponents.Contains(uiComponent.GetType());
+        }
+
         /// <summary>
         /// Surrounds the given string in quotes.
         /// </summary>
@@ -272,9 +294,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             return null;
         }
 
-        public void Lint(RectTransform rect)
-        {
-            EnforceNaming(rect);
-        }
+        #endregion
+
+        #endregion
     }
 }
