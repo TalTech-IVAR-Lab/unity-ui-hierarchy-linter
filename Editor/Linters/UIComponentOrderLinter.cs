@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -49,6 +50,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         public void Lint(RectTransform rect)
         {
+            // do not reorder components on prefab instances
+            if (PrefabUtility.IsPartOfAnyPrefab(rect)) return;
+            
             EnforceOrder(rect);
         }
 
