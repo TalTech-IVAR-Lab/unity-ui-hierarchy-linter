@@ -1,3 +1,16 @@
+## [0.2.0-preview.1](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.1.0...v0.2.0-preview.1) (2023-06-05)
+
+
+### 🚀 Features
+
+* **core:** Add UI hierarchy linter menu item ([afbbe4e](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/afbbe4efe06ecb8c6ba66cb808d151e464af04b9))
+
+
+### 🛠 Fixes
+
+* **UIComponentOrderLinter:** Prevent linter from trying to reorder components on prefab instances ([d72ed5b](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/d72ed5bcde29bc8b0ca6cd0fea1d269c062b06eb))
+* **UIObjectNamingLinter:** Add content labels to scrollbars and dropdowns ([318bc7d](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/318bc7dec8c7e940e3bf76ad135cf67c8ed1411d))
+
 ## [0.1.0](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.0.1...v0.1.0) (2023-06-02)
 
 
