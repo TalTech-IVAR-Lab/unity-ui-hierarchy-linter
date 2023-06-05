@@ -17,7 +17,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// <summary>
     /// Applies pre-defined naming rules to GameObject belonging to the linted RectTransform.
     /// </summary>
-    internal class RectTransformNamingLinter : IUnityUILinter
+    internal class UIObjectNamingLinter : IUnityUILinter
     {
         #region Data
 
