@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,16 +17,19 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
     /// <summary>
     /// Applies pre-defined naming rules to GameObject belonging to the linted RectTransform.
     /// </summary>
-    internal class RectTransformNamingLinter : IUnityUILinter
+    internal class UIObjectNamingLinter : IUnityUILinter
     {
         #region Data
-        
+
         private const int MaxContentLabelChars = 20;
         private const string LabelSeparator = " ⁃ ";
         private const char TextQuoteOpeningChar = '“';
         private const char TextQuoteClosingChar = '”';
         private const string EmptyTextString = "<no text>";
         private const string EmptyImageString = "<no texture>";
+        private const string EmptyDropdownString = "<no options>";
+        private const string HorizontalScrollbarString = "↔";
+        private const string VerticalScrollbarString = "↕";
 
         /// <summary>
         /// Ordered dictionary that matches Unity UI component types with their respective pretty names.
@@ -60,7 +64,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             { typeof(Mask), "Mask" },
             { typeof(RectMask2D), "Rect Mask" },
 
-            { typeof(Text), "Text" },
+            { typeof(Text), "Text (Legacy)" },
             { typeof(TextMeshProUGUI), "Text" },
 
             { typeof(Image), "Image" },
@@ -68,7 +72,56 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             { typeof(RectTransform), "Group" },
         };
-        
+
+        /// <summary>
+        /// Set of default type labels.
+        /// </summary>
+        /// <remarks>
+        /// This is used to filter out default names when determining the custom label for the GameObject.
+        /// </remarks>
+        private static readonly HashSet<string> DefaultTypeLabels = UIComponentsNames.Values.Cast<string>().ToHashSet();
+
+        /// <summary>
+        /// Set of default UI object names.
+        /// </summary>
+        /// <remarks>
+        /// These are the default names Unity assigns to UI GameObjects when user creates them from the hierarchy menu.
+        /// This is used to filter out default names when determining the custom label for the GameObject.
+        /// </remarks>
+        private static readonly HashSet<string> DefaultObjectNames = new()
+        {
+            "GameObject",
+            "Canvas",
+            "Text",
+            "Text (TMP)",
+            "Text (Legacy)",
+            "Image",
+            "RawImage",
+            "Panel",
+            "Toggle",
+            "Slider",
+            "Scrollbar",
+            "Scroll View",
+            "Button",
+            "Button (Legacy)",
+            "Dropdown",
+            "Dropdown (Legacy)",
+            "InputField (TMP)",
+            "InputField (Legacy)",
+
+            // child object names of the default Toggle
+            "Background",
+            "Label",
+
+            // child object names of the default Dropdown
+            "Arrow",
+            "Item Background",
+            "Item Checkmark",
+            "Item Label",
+
+            // child object names 
+        };
+
         #endregion
 
         #region Linter callbacks
@@ -94,7 +147,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             string customLabelString = GetCustomLabelStringForRect(rect);
             if (!string.IsNullOrEmpty(customLabelString)) name += $"{LabelSeparator}{customLabelString}";
-            
+
             gameObject.name = name;
         }
 
@@ -156,7 +209,6 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         /// <returns>Title string.</returns>
         private static string GetContentStringForRect(RectTransform rect)
         {
-            var gameObject = rect.gameObject;
             var uiComponent = GetHighestNamingPriorityUIComponent(rect);
 
             // Text-based components
@@ -181,15 +233,46 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 };
             }
 
+            // Scrollbars
+            if (uiComponent.GetType() == typeof(Scrollbar)) return GetScrollbarContentString((Scrollbar)uiComponent);
+
+            // Dropdowns
+            if (IsDropdownComponent(uiComponent)) return GetDropdownContentString(uiComponent);
+
             return null;
         }
 
         private static string GetCustomLabelStringForRect(RectTransform rect)
         {
-            var customLabel = rect.GetComponent<UILinterObjectNameLabel>();
-            if (customLabel == null) return null;
-            
-            return customLabel.nameLabel;
+            string currentName = rect.name.Trim();
+
+            string[] allLabels = currentName.Split(LabelSeparator);
+            int separatorsCount = allLabels.Length - 1;
+
+            if (separatorsCount <= 0)
+            {
+                // if there are no separators, we face several potential cases
+                string potentialCustomLabel = allLabels[0];
+
+                // label is empty
+                if (string.IsNullOrEmpty(potentialCustomLabel)) return null;
+
+                // label is the default label
+                if (DefaultTypeLabels.Contains(potentialCustomLabel)) return null;
+                if (DefaultObjectNames.Contains(potentialCustomLabel)) return null;
+
+                // label is a custom label
+                return potentialCustomLabel;
+            }
+
+            if (separatorsCount == 1)
+            {
+                // there is no custom label, only a type and a content label
+                return null;
+            }
+
+            // if there are at least 2 separators, we have a custom label
+            return allLabels[2];
         }
 
         #region Images
@@ -253,6 +336,60 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
             if (legacyText != null) return legacyText.text;
 
             return null;
+        }
+
+        #endregion
+
+        #region Scrollbars
+
+        private static string GetScrollbarContentString(Scrollbar scrollbar)
+        {
+            return scrollbar.direction switch
+            {
+                Scrollbar.Direction.LeftToRight => HorizontalScrollbarString,
+                Scrollbar.Direction.RightToLeft => HorizontalScrollbarString,
+                Scrollbar.Direction.BottomToTop => VerticalScrollbarString,
+                Scrollbar.Direction.TopToBottom => VerticalScrollbarString,
+                _ => null,
+            };
+        }
+
+        #endregion
+
+        #region Dropdowns
+
+        /// <summary>
+        /// Set of UI component types which labels should be formatted based on dropdown options.
+        /// </summary>
+        private static HashSet<Type> DropdownUIComponents = new()
+        {
+            typeof(Dropdown),
+            typeof(TMP_Dropdown)
+        };
+
+        private static bool IsDropdownComponent(Component uiComponent)
+        {
+            return DropdownUIComponents.Contains(uiComponent.GetType());
+        }
+
+        private static string GetDropdownContentString(Component uiComponent)
+        {
+            if (!IsDropdownComponent(uiComponent)) return null;
+
+            return uiComponent switch
+            {
+                Dropdown dropdown => GetDropdownContentStringFromOptions(dropdown.options.Count),
+                TMP_Dropdown dropdown => GetDropdownContentStringFromOptions(dropdown.options.Count),
+                _ => null,
+            };
+        }
+
+        private static string GetDropdownContentStringFromOptions(int optionsCount)
+        {
+            if (optionsCount <= 0) return EmptyDropdownString;
+            if (optionsCount == 1) return "1 option";
+
+            return $"{optionsCount} options";
         }
 
         #endregion
