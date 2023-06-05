@@ -6,7 +6,7 @@ using UnityEngine;
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
     [InitializeOnLoad]
-    public static class HierarchyLinterCore
+    public static class UIHierarchyLinterCore
     {
         #region Data
 
@@ -22,7 +22,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         #region Lifecycle
 
-        static HierarchyLinterCore()
+        static UIHierarchyLinterCore()
         {
             EditorApplication.hierarchyChanged += OnHierarchyChanged;
         }
