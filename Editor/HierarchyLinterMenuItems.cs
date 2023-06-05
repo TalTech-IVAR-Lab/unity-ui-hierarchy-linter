@@ -5,7 +5,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
     internal static class HierarchyLinterMenuItems
     {
-        private const string MenuEntryPath = "GameObject/UI Hierarchy Linter/Lint Selection";
+        private const string MenuEntryPath = "GameObject/UI Hierarchy Linter/Lint Selection %&l";
 
         [MenuItem(MenuEntryPath, false, 10)]
         private static void LintHierarchy()
@@ -14,6 +14,8 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             Undo.RegisterFullObjectHierarchyUndo(selectedGameObject, "Lint UI hierarchy");
             HierarchyLinterCore.RunLinters(selectedGameObject);
+
+            Debug.Log($"Linted UI hierarchy of {selectedGameObject.name}.", selectedGameObject);
         }
 
         [MenuItem(MenuEntryPath, true)]
