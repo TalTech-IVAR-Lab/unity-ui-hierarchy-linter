@@ -23,7 +23,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         internal static string EllipsizeMultiline(this string value, int maxChars)
         {
             if (!value.Contains('\n')) return value.Ellipsize(maxChars);
-            Debug.Log($"AAAA {value}");
+            
             string firstLine = value.Split('\n')[0];
             if (firstLine.Length <= maxChars) return firstLine + Ellipsis;
 
