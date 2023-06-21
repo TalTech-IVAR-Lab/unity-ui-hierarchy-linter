@@ -24,7 +24,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         static UIHierarchyLinterCore()
         {
-            EditorApplication.hierarchyChanged += OnHierarchyChanged;
+            // EditorApplication.hierarchyChanged += OnHierarchyChanged;
         }
 
         private static void OnHierarchyChanged()
