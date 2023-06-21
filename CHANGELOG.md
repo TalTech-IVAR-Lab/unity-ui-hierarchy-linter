@@ -1,3 +1,10 @@
+## [0.2.0-preview.3](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.2.0-preview.2...v0.2.0-preview.3) (2023-06-21)
+
+
+### 🛠 Fixes
+
+* **core:** Disable automatic hierarchy linting by default ([1bb89f9](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/1bb89f90cb1db780f863d3710648b44b7ddd745c))
+
 ## [0.2.0-preview.2](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.2.0-preview.1...v0.2.0-preview.2) (2023-06-21)
 
 
