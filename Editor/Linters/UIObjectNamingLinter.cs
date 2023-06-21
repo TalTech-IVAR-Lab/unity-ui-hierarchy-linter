@@ -257,7 +257,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
                 // label is empty
                 if (string.IsNullOrEmpty(potentialCustomLabel)) return null;
 
-                // label is the default label
+                // label is a default label
                 if (DefaultTypeLabels.Contains(potentialCustomLabel)) return null;
                 if (DefaultObjectNames.Contains(potentialCustomLabel)) return null;
 
@@ -267,6 +267,12 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
             if (separatorsCount == 1)
             {
+                // the second part may be a content label or a custom label
+                string potentialContentLabel = GetContentStringForRect(rect);
+
+                // if this rect has no, the second part is a custom label
+                if (potentialContentLabel == null) return allLabels[1];
+
                 // there is no custom label, only a type and a content label
                 return null;
             }
