@@ -1,3 +1,12 @@
+## [0.2.0-preview.2](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.2.0-preview.1...v0.2.0-preview.2) (2023-06-21)
+
+
+### 🛠 Fixes
+
+* **general:** Remove redundant runtime assembly ([ea81a08](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/ea81a0803436af9968b9b113b5b48d8a9ab29cbb))
+* **misc:** Remove redundant debug log from StringExtensions ([21ceb15](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/21ceb15fd4e7fff2bd159daf13a9262c5d9b8535))
+* **UIObjectNamingLinter:** Handle custom labels on objects with no content labels correctly ([8874d5d](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/commit/8874d5d7b015b770c9ed3d29b97d0ff65407eb8d))
+
 ## [0.2.0-preview.1](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.1.0...v0.2.0-preview.1) (2023-06-05)
 
 
