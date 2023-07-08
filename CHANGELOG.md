@@ -1,3 +1,15 @@
+## [0.2.1](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/compare/v0.2.0...v0.2.1) (2023-07-08)
+
+
+### ✨ Other
+
+* **release:** 0.2.1-preview.1 [skip ci] ([37c632b](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/commit/37c632b5ff92e04368c24b9b204e89e99e6f0087))
+
+
+### 🛠 Fixes
+
+* **settings:** Simplify settings implementation ([4f4bbd9](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/commit/4f4bbd9dd500446743940ecef03665cff2248278))
+
 ## [0.2.1-preview.1](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/compare/v0.2.0...v0.2.1-preview.1) (2023-07-08)
 
 
