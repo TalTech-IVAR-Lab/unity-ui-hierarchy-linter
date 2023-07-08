@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EE.TalTech.IVAR.UnityUIHierarchyLinter.Settings;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -21,14 +22,17 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         #endregion
 
         #region Lifecycle
-
+        
         static UIHierarchyLinterCore()
         {
-            // EditorApplication.hierarchyChanged += OnHierarchyChanged;
+            EditorApplication.hierarchyChanged += AutoLint;
         }
 
-        private static void OnHierarchyChanged()
+        private static void AutoLint()
         {
+            bool auto = UIHierarchyLinterSettingsManager.Get<bool>(nameof(UIHierarchyLinterSettingsProvider.LintAutomatically));
+            if (!auto) return;
+            
             RunLinters();
         }
 
