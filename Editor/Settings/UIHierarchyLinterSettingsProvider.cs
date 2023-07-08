@@ -19,7 +19,13 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter.Settings
 
             return provider;
         }
-        
-        
+
+        [UserSetting("General", "Lint automatically",
+            "When enabled, linters are run automatically in all open Scenes")]
+        public static UserSetting<bool> LintAutomatically = new(
+            UIHierarchyLinterSettingsManager.Instance,
+            nameof(LintAutomatically),
+            false
+        );
     }
 }
