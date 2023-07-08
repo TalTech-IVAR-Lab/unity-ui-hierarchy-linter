@@ -1,3 +1,10 @@
+## [0.2.0-preview.4](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/compare/v0.2.0-preview.3...v0.2.0-preview.4) (2023-07-08)
+
+
+### 🚀 Features
+
+* **Settings:** Add initial settings implementation ([30d8c36](https://github.com/TalTech-IVAR-Lab/unity-ui-hierarchy-linter/commit/30d8c36ce3dcfb7ed1ba10c0e29f44f56f9caa64))
+
 ## [0.2.0-preview.3](https://github.com/TalTech-IVAR-Lab/Unity-UI-Hierarchy-Linter/compare/v0.2.0-preview.2...v0.2.0-preview.3) (2023-06-21)
 
 
