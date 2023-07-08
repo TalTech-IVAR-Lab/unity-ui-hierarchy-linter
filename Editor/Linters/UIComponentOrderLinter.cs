@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,9 +26,6 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         {
             typeof(RectTransform),
 
-            // 
-            typeof(UILinterObjectNameLabel),
-
             // Layout components stay on top of the rest of UI components
             typeof(LayoutElement),
             typeof(LayoutGroup),
@@ -49,6 +47,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         public void Lint(RectTransform rect)
         {
+            // do not reorder components on prefab instances
+            if (PrefabUtility.IsPartOfAnyPrefab(rect)) return;
+
             EnforceOrder(rect);
         }
 
