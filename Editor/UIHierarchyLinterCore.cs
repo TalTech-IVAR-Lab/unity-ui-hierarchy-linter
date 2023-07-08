@@ -3,6 +3,7 @@ using EE.TalTech.IVAR.UnityUIHierarchyLinter.Settings;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 {
@@ -22,7 +23,7 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
         #endregion
 
         #region Lifecycle
-        
+
         static UIHierarchyLinterCore()
         {
             EditorApplication.hierarchyChanged += AutoLint;
@@ -30,9 +31,9 @@ namespace EE.TalTech.IVAR.UnityUIHierarchyLinter
 
         private static void AutoLint()
         {
-            bool auto = UIHierarchyLinterSettingsManager.Get<bool>(nameof(UIHierarchyLinterSettingsProvider.LintAutomatically));
+            bool auto = UIHierarchyLinterSettings.LintAutomatically;
             if (!auto) return;
-            
+
             RunLinters();
         }
 
